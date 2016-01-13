@@ -53,8 +53,11 @@ class Requester:
 					r.raw.decode_content = True
 					shutil.copyfileobj(r.raw, imageFile)
 			else:
-				self.logger.printSameLine("",True)
-				nextImage = False
+				if pageNumber == 0:
+					pageNumber += 1
+				else:
+					self.logger.printSameLine("",True)
+					nextImage = False
 		
 		return downloadSuccess
 
