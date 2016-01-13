@@ -16,9 +16,9 @@ logger.setMode( "DEBUG" if args.verbose else "INFO ")
 
 def printResult(result, name):
 	if result:
-		logger.info("{} download success".format(name))
+		logger.info("{} : download success".format(name))
 	else:
-		logger.error("{} nothing to download".format(name))
+		logger.warn("{} : nothing to download".format(name))
 	print()
 
 #deal with downloader

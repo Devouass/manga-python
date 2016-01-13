@@ -21,7 +21,7 @@ class Downloader:
 			with open(pathToConfigFile, 'r') as data_file:
 				dataAsJson = json.load(data_file)
 				if self._checkJsonInput(dataAsJson):
-					self._log("download {} from chapter {}".format(dataAsJson["name"], dataAsJson["chapter"]), "INFO ")
+					self._log("download {} from chapter {}".format(dataAsJson["name"], dataAsJson["chapter"]), "INFO")
 					chapterAsString = dataAsJson["chapter"]
 					name = dataAsJson["name"]
 					url = dataAsJson["url"]

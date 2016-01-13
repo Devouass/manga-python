@@ -2,7 +2,7 @@ import sys
 
 class Logger:
 	""" logger """
-	modes = ["ERROR", "INFO ", "DEBUG"]
+	modes = ["ERROR", "WARN ", "INFO ", "DEBUG"]
 
 	def __init__(self, logInFile=False):
 
@@ -21,9 +21,12 @@ class Logger:
 		print()
 
 	def debug(self, message):
-		self._log(message, Logger.modes[2])
+		self._log(message, Logger.modes[3])
 
 	def info(self, message):
+		self._log(message, Logger.modes[2])
+
+	def warn(self, message):
 		self._log(message, Logger.modes[1])
 
 	def error(self, message):

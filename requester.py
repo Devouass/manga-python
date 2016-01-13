@@ -20,7 +20,7 @@ class Requester:
 		while downloadSuccess:
 			res = self._downloadAChapter(downloadDirectory, url, actualDownloadChapter)
 			if res:
-				self._log("chapter {} downloaded".format(actualDownloadChapter), "INFO ")
+				self._log("chapter {} downloaded".format(actualDownloadChapter), "INFO")
 				actualDownloadChapter += 1
 				self._createDirectory(downloadDirectory, str(actualDownloadChapter))
 			else:
@@ -36,7 +36,7 @@ class Requester:
 
 		nextImage = True
 		downloadSuccess = False
-		self._log("downloading chapter {} :".format(chapter), "INFO ")
+		self._log("downloading chapter {} :".format(chapter), "INFO")
 		while nextImage:
 			pageNumberFormatted = self._formatPageNumber(pageNumber)
 			imageUrl = baseImageUrl + pageNumberFormatted + ".jpg"
