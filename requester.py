@@ -56,7 +56,8 @@ class Requester:
 				if pageNumber == 0:
 					pageNumber += 1
 				else:
-					self.logger.printSameLine("",True)
+					if downloadSuccess:
+						self.logger.printSameLine("",True)
 					nextImage = False
 		
 		return downloadSuccess

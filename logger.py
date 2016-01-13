@@ -18,6 +18,7 @@ class Logger:
 			self.mode = Logger.modes[0]
 
 		self.info("class Logger : logger's mode is "+self.mode)
+		print()
 
 	def debug(self, message):
 		self._log(message, Logger.modes[2])
