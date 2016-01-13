@@ -2,6 +2,7 @@ import json
 import os
 import argparse
 from logger import Logger
+from downloader import Downloader
 
 #parser arguments
 parser = argparse.ArgumentParser()
@@ -11,17 +12,15 @@ args = parser.parse_args()
 
 #deal with logger
 logger = Logger()
-logger.setMode( "DEBUG" if args.verbose else "INFO")
+logger.setMode( "DEBUG" if args.verbose else "INFO ")
 
-configFileName = "config/" + args.name + ".json"
+#deal with downloader
+downloader = Downloader(logger)
+res = downloader.download("config/" + args.name + ".json")
 
-if os.path.exists(configFileName):
-	with open('config/OnePiece.json') as data_file:    
-	    data = json.load(data_file)
-	    logger.debug(data)
-
+if res:
+	logger.info("download success")
 else:
-	logger.error("no config for manga {} defined ".format(args.name))
+	logger.error("nothing to download")
 
-	
 logger.close()
