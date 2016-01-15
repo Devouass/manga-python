@@ -1,36 +1,53 @@
 import sys
 
+#def singleton(cls):
+#	instances = {}
+#	def getInstance(*args, **kwargs):
+#		if cls not in instances:
+#			instances[cls] = cls(*args, **kwargs)
+#		return instances[cls]
+#	return getInstance
+
+def getLogger():
+	return Logger.getLogger()
+
 class Logger:
 	""" logger """
-	modes = ["ERROR", "WARN ", "INFO ", "DEBUG"]
 
-	def __init__(self, logInFile=False):
+	_logger = None
 
+	@staticmethod
+	def getLogger():
+		if Logger._logger is None:
+			Logger._logger = Logger()
+		return Logger._logger
+
+	def __init__(self):
 		self.logInFile = False
 		self.isFileOpen = False
-		if type(logInFile) is bool:
-			self.logInFile = logInFile
+		self.modes = ["ERROR", "WARN ", "INFO ", "DEBUG"]
+
 
 	def setMode(self, mode="INFO "):
-		if mode in Logger.modes :
+		if mode in self.modes :
 			self.mode = mode
 		else :
-			self.mode = Logger.modes[0]
+			self.mode = self.modes[0]
 
-		self.info("class Logger : logger's mode is "+self.mode)
+		self.debug("class Logger : logger's mode is "+self.mode)
 		print()
 
 	def debug(self, message):
-		self._log(message, Logger.modes[3])
+		self._log(message, self.modes[3])
 
 	def info(self, message):
-		self._log(message, Logger.modes[2])
+		self._log(message, self.modes[2])
 
 	def warn(self, message):
-		self._log(message, Logger.modes[1])
+		self._log(message, self.modes[1])
 
 	def error(self, message):
-		self._log(message, Logger.modes[0])
+		self._log(message, self.modes[0])
 
 	def printSameLine(self, message, lastMessage=False):
 		print(message, end="")
@@ -39,7 +56,7 @@ class Logger:
 		sys.stdout.flush()
 
 	def _log(self, message, mode):
-		if mode in Logger.modes and Logger.modes.index(mode) <= Logger.modes.index(self.mode):
+		if mode in self.modes and self.modes.index(mode) <= self.modes.index(self.mode):
 			if self.logInFile:
 				self._printInFile("{} : {}".format(mode, message), mode)
 			else :

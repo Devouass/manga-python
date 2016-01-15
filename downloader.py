@@ -1,13 +1,14 @@
 import os
 import json
+import logger
 from requester import Requester
 
 class Downloader:
 
 	downloadDirectory = "download"
 
-	def __init__(self, logger=None):
-		self.logger = logger
+	def __init__(self):
+		self.logger = logger.getLogger()
 		if not os.path.exists(Downloader.downloadDirectory):
 			self._log("directory {} does not exists, create it".format(Downloader.downloadDirectory))
 			os.makedirs(Downloader.downloadDirectory)
@@ -36,7 +37,7 @@ class Downloader:
 	
 
 	def _startDownloading(self, name, url, chapter):
-		requester = Requester(self.logger)
+		requester = Requester()
 		lastDownloadedChapter = requester.download(Downloader.downloadDirectory, name, url, chapter)
 		return int(lastDownloadedChapter)
 

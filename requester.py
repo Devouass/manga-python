@@ -2,11 +2,12 @@ import os
 import requests
 import shutil
 import time
+import logger
 
 class Requester:
 
-	def __init__(self, logger=None):
-		self.logger = logger
+	def __init__(self):
+		self.logger = logger.getLogger()
 
 	def download(self, pathToStore, name, url, chapter):
 		self._log("download {} from {}, starting chapter {} and store at {}/{}".format(name, url, chapter, pathToStore, name), "DEBUG")
