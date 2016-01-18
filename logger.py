@@ -25,6 +25,7 @@ class Logger:
 	def __init__(self):
 		self.logInFile = False
 		self.isFileOpen = False
+		self.mode = "INFO "
 		self.modes = ["ERROR", "WARN ", "INFO ", "DEBUG"]
 
 

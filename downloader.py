@@ -44,9 +44,9 @@ class Downloader:
 
 	def _checkJsonInput(self, json):
 		isValid = False
-		if json["name"] is not None:
-			if json["url"] is not None:
-				if json["chapter"] is not None:
+		if "name" in json:
+			if "url" in json:
+				if "chapter" in json:
 					isValid = True
 				else:
 					self._log("config file does not contains chapter", "ERROR")
