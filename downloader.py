@@ -1,6 +1,6 @@
 import os
 import json
-from utils import Logger, Requester
+from utils import Logger, Requester, JsonFileWrapper
 
 class Downloader:
 
@@ -13,12 +13,11 @@ class Downloader:
 			os.makedirs(Downloader.downloadDirectory)
 
 	def download(self, pathToConfigFile=None):
-		downloadSuccess = False
-		if self._checkConfigFileInput(pathToConfigFile):
-			dataAsJson = {}
-			chapterAsString = ""
-			with open(pathToConfigFile, 'r') as data_file:
-				dataAsJson = json.load(data_file)
+		if pathToConfigFile is not None:
+			try:
+				downloadSuccess = False
+				jfw = JsonFileWrapper(pathToConfigFile)
+				dataAsJson = jfw.getJson()
 				if self._checkJsonInput(dataAsJson):
 					self._log("download {} from chapter {}".format(dataAsJson["name"], dataAsJson["chapter"]), "INFO")
 					chapterAsString = dataAsJson["chapter"]
@@ -26,12 +25,16 @@ class Downloader:
 					url = dataAsJson["url"]
 					lastDownloadedChapter = self._startDownloading(name, url, chapterAsString)
 					if lastDownloadedChapter is not None and lastDownloadedChapter > int(dataAsJson["chapter"]):
-						downloadSuccess = True	
-			if downloadSuccess:
-				with open(pathToConfigFile, 'w') as data_file:
-					dataAsJson["chapter"] = str(lastDownloadedChapter)
-					data_file.write(json.dumps(dataAsJson))
-		return downloadSuccess
+						downloadSuccess = True
+
+				if downloadSuccess:
+					jfw.update("chapter", str(lastDownloadedChapter))
+					jfw.save()
+
+			except IOError as e:
+				self._log(e, "ERROR")
+		else:
+			self._log("config file path is not set !!", "ERROR")
 
 	def _startDownloading(self, name, url, chapter):
 		requester = Requester()
@@ -50,18 +53,6 @@ class Downloader:
 				self._log("config file does not contains url", "ERROR")
 		else:
 			self._log("config file does not contains name", "ERROR")
-		return isValid
-
-	def _checkConfigFileInput(self, pathToConfigFile):
-		isValid = False
-		if pathToConfigFile is not None:
-			if os.path.exists(pathToConfigFile):
-				self._log("path to config file is valid", "DEBUG")
-				isValid = True
-			else:
-				self._log("no config for manga {} defined ".format(pathToConfigFile), "ERROR")
-		else:
-			self._log("no path to config file given !", "ERROR")
 		return isValid
 
 	def _log(self, message, mode=""):

@@ -1,7 +1,7 @@
 import json
 import os
 import argparse
-from utils import Logger, JsonFileWrapper
+from utils import Logger, JsonFileWrapper, FileManager
 from downloader import Downloader
 
 
@@ -39,15 +39,20 @@ class MainClass:
 
 	def updateConfigFile(self, args):
 		if self._argsAreValidForUpdate(args):
-			jfw = JsonFileWrapper(self._getConfigFilePath(args.name))
-			actualChapter = jfw.getKey(JsonFileWrapper.CHAPTER)
-			if actualChapter is not None:
-				self._logger.info("class Main : update config for {}, set chapter from {} to {}".format(args.name, actualChapter, args.chapter))
-				jfw.update(JsonFileWrapper.CHAPTER, str(args.chapter))
-				jfw.save()
-			else:
-				self._logger.error("class Main : can not set chapter {} for manga {} : actual chapter is {}"\
-				.format(args.chapter, args.name, actualChapter))
+			try:
+				jfw = JsonFileWrapper(self._getConfigFilePath(args.name))
+				actualChapter = jfw.getKey(JsonFileWrapper.CHAPTER)
+				if actualChapter is not None:
+					self._logger.info("class Main : update config for {}, set chapter from {} to {}".format(args.name, actualChapter, args.chapter))
+					jfw.update(JsonFileWrapper.CHAPTER, str(args.chapter))
+					jfw.save()
+
+					FileManager.getFileManager().cleanMangaDirectory(jfw.getKey(JsonFileWrapper.NAME), jfw.getKey(JsonFileWrapper.CHAPTER))
+				else:
+					self._logger.error("class Main : can not set chapter {} for manga {} : actual chapter is {}"\
+					.format(args.chapter, args.name, actualChapter))
+			except IOError as e:
+				self._logger.error("class Main : ioerror {}".format(e))
 
 	def showConfigFile(self, args):
 		if args.name is not None:
