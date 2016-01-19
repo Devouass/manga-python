@@ -1,8 +1,5 @@
 import os
 
-def getFileManager():
-	return FileManager.getFileManager()
-
 class FileManager:
 
 	_fm = None

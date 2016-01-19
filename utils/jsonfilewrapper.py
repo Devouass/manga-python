@@ -1,4 +1,4 @@
-import filemanager
+from .filemanager import FileManager
 import json
 
 class JsonFileWrapper:
@@ -8,7 +8,7 @@ class JsonFileWrapper:
 	CHAPTER = "chapter"
 
 	def __init__(self, pathToFile):
-		if not filemanager.getFileManager().exists(pathToFile):
+		if not FileManager.getFileManager().exists(pathToFile):
 			raise IOError("file does not exists: {}".format(pathToFile))
 		self._path = pathToFile
 		with open(self._path, "r") as f:
