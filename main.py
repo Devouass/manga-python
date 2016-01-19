@@ -1,9 +1,8 @@
 import json
 import os
 import argparse
-from utils import Logger
+from utils import Logger, JsonFileWrapper
 from downloader import Downloader
-from utils import JsonFileWrapper
 
 
 class MainClass:
@@ -14,11 +13,11 @@ class MainClass:
 	def __init__(self):
 		self._logger = Logger.getLogger()
 
-	def printResult(result, name):
+	def printResult(self, result, name):
 		if result:
-			self._logger.info("{} : download success".format(name))
+			self._logger.info("class Main : download success\n".format(name))
 		else:
-			self._logger.warn("{} : nothing to download\n".format(name))
+			self._logger.warn("class Main : {} => nothing to download\n".format(name))
 
 	def _getConfigFilePath(self, name):
 		return MainClass.CONFIG_BASE_DIRECTORY + name + MainClass.CONFIG_FORMAT if name is not None else None
@@ -31,11 +30,11 @@ class MainClass:
 					if args.chapter is not None and isinstance(args.chapter, int) and int(args.chapter) >= 1:
 						canApply = True
 					else:
-						self._logger.error("can not apply config changes, no chapter specified with -c option")
+						self._logger.error("class Main : can not apply config changes, no chapter specified with -c option")
 				else:
-					self._logger.error("file {} does not exists".format(args.name))
+					self._logger.error("class Main : file {} does not exists".format(args.name))
 			else:
-				self._logger.error("can not apply config changes, no manga specified with -n option")			
+				self._logger.error("class Main : can not apply config changes, no manga specified with -n option")			
 		return canApply
 
 	def updateConfigFile(self, args):
@@ -43,38 +42,37 @@ class MainClass:
 			jfw = JsonFileWrapper(self._getConfigFilePath(args.name))
 			actualChapter = jfw.getKey(JsonFileWrapper.CHAPTER)
 			if actualChapter is not None:
-				self._logger.info("update config for {}, set chapter from {} to {}".format(args.name, actualChapter, args.chapter))
+				self._logger.info("class Main : update config for {}, set chapter from {} to {}".format(args.name, actualChapter, args.chapter))
 				jfw.update(JsonFileWrapper.CHAPTER, str(args.chapter))
 				jfw.save()
 			else:
-				self._logger.error("can not set chapter {} for manga {} : actual chapter is {}"\
+				self._logger.error("class Main : can not set chapter {} for manga {} : actual chapter is {}"\
 				.format(args.chapter, args.name, actualChapter))
 
-	def showConfigFile(self):
-		for f in os.listdir(MainClass.CONFIG_BASE_DIRECTORY):
-			try:
-				self._logger.info(JsonFileWrapper(MainClass.CONFIG_BASE_DIRECTORY + f))
-			except IOError as e:
-				self._logger.error(e)
+	def showConfigFile(self, args):
+		if args.name is not None:
+			if os.path.exists(self._getConfigFilePath(args.name)):
+				self._logger.info(JsonFileWrapper(self._getConfigFilePath(args.name)))
+			else:
+				self._logger.error("class Main : manga {} not available".format(args.name))
+		else:
+			for f in os.listdir(MainClass.CONFIG_BASE_DIRECTORY):
+				try:
+					self._logger.info(JsonFileWrapper(MainClass.CONFIG_BASE_DIRECTORY + f))
+				except IOError as e:
+					self._logger.error(e)
 
-def chooseAccordingToArgs(args):
-	if args.info:
-		MainClass().showConfigFile()
-
-	elif args.update:
-		MainClass().updateConfigFile(args)
-
-	else:
+	def download(self, args):
 		downloader = Downloader()
 		if args.name == "All":
 			for configFile in os.listdir("config/"):
 				res = downloader.download("config/" + configFile)
-				printResult(res, configFile.split(".")[0])
+				self.printResult(res, configFile.split(".")[0])
 		else:
 			res = downloader.download("config/" + args.name + ".json")
-			printResult(res, args.name)
+			self.printResult(res, args.name)
 
-def run():
+if __name__ == '__main__':
 	#parser arguments
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-n", "--name", nargs='?', const="1", default="All",\
@@ -87,13 +85,13 @@ def run():
 
 	Logger.getLogger().setMode( "DEBUG" if args.verbose else "INFO ")
 
-	#deal with downloader
-	if args is not None:
-		chooseAccordingToArgs(args)
+	if args.info:
+		MainClass().showConfigFile(args)
+
+	elif args.update:
+		MainClass().updateConfigFile(args)
+
 	else:
-		Logger.getLogger().error("No args given!!")
+		MainClass().download(args)
 
 	Logger.getLogger().close()
-
-if __name__ == '__main__':
-	run()

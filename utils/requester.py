@@ -2,7 +2,7 @@ import os
 import requests
 import shutil
 import time
-from utils import Logger
+from .logger import Logger
 
 class Requester:
 

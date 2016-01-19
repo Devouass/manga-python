@@ -1,7 +1,6 @@
 import os
 import json
-from utils import Logger
-from requester import Requester
+from utils import Logger, Requester
 
 class Downloader:
 
@@ -12,7 +11,6 @@ class Downloader:
 		if not os.path.exists(Downloader.downloadDirectory):
 			self._log("directory {} does not exists, create it".format(Downloader.downloadDirectory))
 			os.makedirs(Downloader.downloadDirectory)
-
 
 	def download(self, pathToConfigFile=None):
 		downloadSuccess = False
@@ -34,13 +32,11 @@ class Downloader:
 					dataAsJson["chapter"] = str(lastDownloadedChapter)
 					data_file.write(json.dumps(dataAsJson))
 		return downloadSuccess
-	
 
 	def _startDownloading(self, name, url, chapter):
 		requester = Requester()
 		lastDownloadedChapter = requester.download(Downloader.downloadDirectory, name, url, chapter)
 		return int(lastDownloadedChapter)
-
 
 	def _checkJsonInput(self, json):
 		isValid = False
@@ -56,7 +52,6 @@ class Downloader:
 			self._log("config file does not contains name", "ERROR")
 		return isValid
 
-
 	def _checkConfigFileInput(self, pathToConfigFile):
 		isValid = False
 		if pathToConfigFile is not None:
@@ -68,7 +63,6 @@ class Downloader:
 		else:
 			self._log("no path to config file given !", "ERROR")
 		return isValid
-
 
 	def _log(self, message, mode=""):
 		if self.logger is not None:
