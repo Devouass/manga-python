@@ -1,3 +1,4 @@
 #exclude donwload directory
 /download/*
 __pycache__/*
+**/__pycache__/*

@@ -3,52 +3,66 @@ import os
 import argparse
 import logger
 from downloader import Downloader
+from utils import JsonFileWrapper
 
-def printResult(result, name):
-	if result:
-		logger.getLogger().info("{} : download success".format(name))
-	else:
-		logger.getLogger().warn("{} : nothing to download".format(name))
-	print()
 
-def isJsonValid(dataJson):
-	isValid = False
-	if dataJson is not None:
-		if "name" in dataJson:
-			if "url" in dataJson:
-				if "chapter" in dataJson:
-					isValid = True
-	return isValid
+class MainClass:
+	
+	CONFIG_BASE_DIRECTORY = "config/"
+	CONFIG_FORMAT = ".json"
 
-def canApplyConfigChanges(args):
-	canApply = False
-	if args is not None:
-		if args.name is not None:
-			if os.path.exists("config/" + args.name + ".json"):
-				if args.chapter is not None and isinstance(args.chapter, int) and int(args.chapter) >= 0:
-					canApply = True
-				else:
-					logger.getLogger().error("can not apply config changes, no chapter specified with -c option")
-			else:
-				logger.getLogger().error("file {} does not exists".format("config/"+args.name))
+	def __init__(self):
+		self._logger = logger.getLogger()
+
+	def printResult(result, name):
+		if result:
+			self._logger.info("{} : download success".format(name))
 		else:
-			logger.getLogger().error("can not apply config changes, no manga specified with -n option")			
-	return canApply
+			self._logger.warn("{} : nothing to download\n".format(name))
+
+	def _getConfigFilePath(self, name):
+		return MainClass.CONFIG_BASE_DIRECTORY + name + MainClass.CONFIG_FORMAT if name is not None else None
+
+	def _argsAreValidForUpdate(self, args):
+		canApply = False
+		if args is not None:
+			if args.name is not None:
+				if os.path.exists(self._getConfigFilePath(args.name)):
+					if args.chapter is not None and isinstance(args.chapter, int) and int(args.chapter) >= 1:
+						canApply = True
+					else:
+						self._logger.error("can not apply config changes, no chapter specified with -c option")
+				else:
+					self._logger.error("file {} does not exists".format(args.name))
+			else:
+				self._logger.error("can not apply config changes, no manga specified with -n option")			
+		return canApply
+
+	def updateConfigFile(self, args):
+		if self._argsAreValidForUpdate(args):
+			jfw = JsonFileWrapper(self._getConfigFilePath(args.name))
+			actualChapter = jfw.getKey(JsonFileWrapper.CHAPTER)
+			if actualChapter is not None:
+				self._logger.info("update config for {}, set chapter from {} to {}".format(args.name, actualChapter, args.chapter))
+				jfw.update(JsonFileWrapper.CHAPTER, str(args.chapter))
+				jfw.save()
+			else:
+				self._logger.error("can not set chapter {} for manga {} : actual chapter is {}"\
+				.format(args.chapter, args.name, actualChapter))
+
+	def showConfigFile(self):
+		for f in os.listdir(MainClass.CONFIG_BASE_DIRECTORY):
+			try:
+				self._logger.info(JsonFileWrapper(MainClass.CONFIG_BASE_DIRECTORY + f))
+			except IOError as e:
+				self._logger.error(e)
 
 def chooseAccordingToArgs(args):
 	if args.info:
-		for configFile in os.listdir("config/"):
-			data = {}
-			with open("config/" + configFile, "r") as f:
-				data = json.load(f)
-				if isJsonValid(data):
-					logger.getLogger().info("manga {} downloaded until chapter {}"\
-						.format(data["name"], 0 if int(data["chapter"]) <= 0 else int(data["chapter"]) -1))
+		MainClass().showConfigFile()
 
 	elif args.update:
-		logger.getLogger().debug("try to update configuration file")
-		if canApplyConfigChanges(args):
-			logger.getLogger.debug("applying changes")
+		MainClass().updateConfigFile(args)
 
 	else:
 		downloader = Downloader()
@@ -73,9 +87,11 @@ def run():
 
 	logger.getLogger().setMode( "DEBUG" if args.verbose else "INFO ")
 
-
 	#deal with downloader
-	chooseAccordingToArgs(args)
+	if args is not None:
+		chooseAccordingToArgs(args)
+	else:
+		logger.getLogger().error("No args given!!")
 
 	logger.getLogger().close()
 

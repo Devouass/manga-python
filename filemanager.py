@@ -1,6 +1,5 @@
 import os
 
-
 def getFileManager():
 	return FileManager.getFileManager()
 
@@ -15,7 +14,7 @@ class FileManager:
 		return FileManager._fm
 
 	def __init__(self):
-
+		pass
 
 	def exists(self, directory):
 		if str(directory) is not None:

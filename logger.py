@@ -23,11 +23,14 @@ class Logger:
 		return Logger._logger
 
 	def __init__(self):
+		self.mute = False
 		self.logInFile = False
 		self.isFileOpen = False
 		self.mode = "INFO "
 		self.modes = ["ERROR", "WARN ", "INFO ", "DEBUG"]
 
+	def setMute(self, mute=True):
+		self.mute = mute
 
 	def setMode(self, mode="INFO "):
 		if mode in self.modes :
@@ -57,7 +60,7 @@ class Logger:
 		sys.stdout.flush()
 
 	def _log(self, message, mode):
-		if mode in self.modes and self.modes.index(mode) <= self.modes.index(self.mode):
+		if not self.mute and mode in self.modes and self.modes.index(mode) <= self.modes.index(self.mode):
 			if self.logInFile:
 				self._printInFile("{} : {}".format(mode, message), mode)
 			else :
