@@ -1,7 +1,7 @@
 import json
 import os
 import argparse
-import logger
+from utils import Logger
 from downloader import Downloader
 from utils import JsonFileWrapper
 
@@ -12,7 +12,7 @@ class MainClass:
 	CONFIG_FORMAT = ".json"
 
 	def __init__(self):
-		self._logger = logger.getLogger()
+		self._logger = Logger.getLogger()
 
 	def printResult(result, name):
 		if result:
@@ -85,15 +85,15 @@ def run():
 	parser.add_argument("-c", "--chapter", nargs='?', const="1", default=0, type=int, help="with -u and -n option, specify the version")
 	args = parser.parse_args()
 
-	logger.getLogger().setMode( "DEBUG" if args.verbose else "INFO ")
+	Logger.getLogger().setMode( "DEBUG" if args.verbose else "INFO ")
 
 	#deal with downloader
 	if args is not None:
 		chooseAccordingToArgs(args)
 	else:
-		logger.getLogger().error("No args given!!")
+		Logger.getLogger().error("No args given!!")
 
-	logger.getLogger().close()
+	Logger.getLogger().close()
 
 if __name__ == '__main__':
 	run()

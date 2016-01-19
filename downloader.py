@@ -1,6 +1,6 @@
 import os
 import json
-import logger
+from utils import Logger
 from requester import Requester
 
 class Downloader:
@@ -8,7 +8,7 @@ class Downloader:
 	downloadDirectory = "download"
 
 	def __init__(self):
-		self.logger = logger.getLogger()
+		self.logger = Logger.getLogger()
 		if not os.path.exists(Downloader.downloadDirectory):
 			self._log("directory {} does not exists, create it".format(Downloader.downloadDirectory))
 			os.makedirs(Downloader.downloadDirectory)

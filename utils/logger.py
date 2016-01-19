@@ -8,8 +8,8 @@ import sys
 #		return instances[cls]
 #	return getInstance
 
-def getLogger():
-	return Logger.getLogger()
+#def getLogger():
+#	return Logger.getLogger()
 
 class Logger:
 	""" logger """
