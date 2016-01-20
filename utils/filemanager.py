@@ -31,6 +31,15 @@ class FileManager:
 		else:
 			self._logger.error((self._getFormattedLog("can not create \"None\" directory")))
 
+	def deleteDirectory(self, directory):
+		if directory is not None:
+			if self.exists(directory):
+				shutil.rmtree(directory)
+			else:
+				self._logger.warn(self._getFormattedLog("directory {} not exists".format(directory)))
+		else:
+			self._logger.error((self._getFormattedLog("can not delete \"None\" directory")))
+
 	def cleanMangaDirectory(self, mangaName, chapter):
 		if mangaName is not None and chapter is not None:
 			self._logger.debug(self._getFormattedLog("cleaning directory for {}, and for manga upper than {}".format(mangaName, chapter)))

@@ -1,19 +1,25 @@
-import os
 import requests
 import shutil
 import time
 from .logger import Logger
+from .filemanager import FileManager
 
 class Requester:
 
+	DOWNLOAD_DIR = "download"
+
 	def __init__(self):
 		self.logger = Logger.getLogger()
+		self.fileManager  = FileManager.getFileManager()
+		if not self.fileManager.exists(Requester.DOWNLOAD_DIR):
+			self._log("directory {} does not exists, create it".format(Requester.DOWNLOAD_DIR))
+			self.fileManager.createDirectory(Requester.DOWNLOAD_DIR)
 
-	def download(self, pathToStore, name, url, chapter):
-		self._log("download {} from {}, starting chapter {} and store at {}/{}".format(name, url, chapter, pathToStore, name), "DEBUG")
-		self._createDirectory(pathToStore, name)
+	def download(self, name, url, chapter):
+		self._log("download {} from {}, starting chapter {} and store at {}/{}".format(name, url, chapter, Requester.DOWNLOAD_DIR, name), "DEBUG")
+		self._createDirectory(Requester.DOWNLOAD_DIR, name)
 
-		downloadDirectory = pathToStore + "/" + name
+		downloadDirectory = Requester.DOWNLOAD_DIR + "/" + name
 
 		self._createDirectory(downloadDirectory, str(chapter))
 		actualDownloadChapter = int(chapter)
@@ -25,10 +31,9 @@ class Requester:
 				actualDownloadChapter += 1
 				self._createDirectory(downloadDirectory, str(actualDownloadChapter))
 			else:
-				self._delDirectory(downloadDirectory, str(actualDownloadChapter))
+				self.fileManager.deleteDirectory(downloadDirectory + "/" +str(actualDownloadChapter))
 				downloadSuccess = False
 		return actualDownloadChapter
-
 
 	def _downloadAChapter(self, pathToStore, url, chapter):
 		pageNumber = 0
@@ -63,7 +68,6 @@ class Requester:
 		
 		return downloadSuccess
 
-
 	def _formatPageNumber(self, pageNumber):
 		pageFormatted = ""
 		if pageNumber < 10:
@@ -74,21 +78,14 @@ class Requester:
 
 	def _createDirectory(self, basePath, name):
 		if basePath is not None and name is not None:
-			if not os.path.exists(basePath):
+			if not self.fileManager.exists(basePath):
 				self._log("create {}".format(basePath), "DEBUG")
-				os.makedirs(basePath)
+				self.fileManager.createDirectory(basePath)
 
 			newDirectory = basePath + "/" + str(name)
-			if not os.path.exists(newDirectory):
+			if not self.fileManager.exists(newDirectory):
 				self._log("create {}".format(newDirectory), "DEBUG")
-				os.makedirs(newDirectory)
-
-	def _delDirectory(self, directory, name):
-		if directory is not None and name is not None:
-			toDel = directory + "/" + name
-			if os.path.exists(toDel):
-				os.rmdir(toDel)
-				self._log("delete {}".format(toDel), "DEBUG")
+				self.fileManager.createDirectory(newDirectory)
 
 	def _log(self, message, mode=""):
 		if self.logger is not None:

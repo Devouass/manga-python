@@ -1,16 +1,10 @@
-import os
 import json
 from utils import Logger, Requester, JsonFileWrapper
 
 class Downloader:
 
-	downloadDirectory = "download"
-
 	def __init__(self):
 		self.logger = Logger.getLogger()
-		if not os.path.exists(Downloader.downloadDirectory):
-			self._log("directory {} does not exists, create it".format(Downloader.downloadDirectory))
-			os.makedirs(Downloader.downloadDirectory)
 
 	def download(self, pathToConfigFile=None):
 		if pathToConfigFile is not None:
@@ -38,7 +32,7 @@ class Downloader:
 
 	def _startDownloading(self, name, url, chapter):
 		requester = Requester()
-		lastDownloadedChapter = requester.download(Downloader.downloadDirectory, name, url, chapter)
+		lastDownloadedChapter = requester.download(name, url, chapter)
 		return int(lastDownloadedChapter)
 
 	def _checkJsonInput(self, json):

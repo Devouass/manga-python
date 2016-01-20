@@ -4,7 +4,6 @@ import argparse
 from utils import Logger, JsonFileWrapper, FileManager
 from downloader import Downloader
 
-
 class MainClass:
 	
 	CONFIG_BASE_DIRECTORY = "config/"
@@ -46,7 +45,7 @@ class MainClass:
 					self._logger.info("class Main : update config for {}, set chapter from {} to {}".format(args.name, actualChapter, args.chapter))
 					jfw.update(JsonFileWrapper.CHAPTER, str(args.chapter))
 					jfw.save()
-
+					self._logger.info("class Main :cleaning donwload directory")
 					FileManager.getFileManager().cleanMangaDirectory(jfw.getKey(JsonFileWrapper.NAME), jfw.getKey(JsonFileWrapper.CHAPTER))
 				else:
 					self._logger.error("class Main : can not set chapter {} for manga {} : actual chapter is {}"\
@@ -55,7 +54,7 @@ class MainClass:
 				self._logger.error("class Main : ioerror {}".format(e))
 
 	def showConfigFile(self, args):
-		if args.name is not None:
+		if args.name is not None and args.name is not "All":
 			if os.path.exists(self._getConfigFilePath(args.name)):
 				self._logger.info(JsonFileWrapper(self._getConfigFilePath(args.name)))
 			else:
@@ -92,10 +91,8 @@ if __name__ == '__main__':
 
 	if args.info:
 		MainClass().showConfigFile(args)
-
 	elif args.update:
 		MainClass().updateConfigFile(args)
-
 	else:
 		MainClass().download(args)
 
