@@ -54,7 +54,7 @@ class FileManager:
 
 					for f in toDel:
 						shutil.rmtree(mangaDir + "/" + f)
-					
+
 
 	def _getFormattedLog(self, message):
 		return "class {} : {}".format(self.__class__.__name__, message)
