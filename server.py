@@ -28,9 +28,11 @@ def serve_static_lib(filename):
 def serve_static_script(filename):
     return send_from_directory('static/script', filename)
 
-@app.route("/test", methods=["GET"])
-def test():
-    return jsonify({'username': 'jerem'})
+@app.route("/login", methods=["POST"])
+def check_login():
+    if not request.json:
+        abort(400)
+    return jsonify({}), 201
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8082, debug=True)
