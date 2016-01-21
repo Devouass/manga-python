@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <head>
     <title>Mon programme</title>
+    <script type="text/javascript" src="lib/angular.min.js"></script>
+    <script type="text/javascript" src="script/index.js"></script>
 </head>
 <body>
-    <form action="/index.py" method="post">
-        <input type="text" name="name" value="Votre nom" />
-        <input type="submit" name="send" value="Envoyer information au serveur">
-    </form>
+    <div ng-app="loginApp" ng-controller="loginCtrl">
+      <div>
+        <span Login/><input type="text" ng-model="login">
+        <span Password/><input type="text" ng-model="password">
+        <button type="button" ng-disabled="isDisable()" ng-click="save()">Log in</button>
+      </div>
+    </div>
 </body>
 </html>
