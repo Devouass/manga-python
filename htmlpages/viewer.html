@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <head>
     <title>Mon programme 2</title>
+    <script type="text/javascript" src="lib/angular.min.js"></script>
+    <script type="text/javascript" src="script/viewer.js"></script>
 </head>
-<script type="text/javascript" src="lib/angular.min.js"></script>
 <body>
-    <form action="/index.py" method="post">
-        <input type="text" name="name" value="Votre nom" />
-        <input type="submit" name="send" value="Envoyer information au serveur 2">
-    </form>
+  <div ng-app="viewerApp" ng-controller="viewerCtrl">
+    <button ng-click="logout()">logout</button>
+  </div>
 </body>
 </html>

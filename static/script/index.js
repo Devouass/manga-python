@@ -1,27 +1,33 @@
 var app = angular.module('loginApp', []);
 
-app.controller('loginCtrl', function($scope, $http) {
+app.controller('loginCtrl', function($scope, $http, $window) {
   $scope.login = "";
   $scope.password = "";
-  $scope.isDisable = function() {
-    if($scope.login == "" || $scope.password == "") {
-      return true;
+  $scope.showError = {'visibility':'hidden'}
+  $scope.$watch('login', function() {
+    if($scope.login != ""){
+      $scope.showError = {'visibility':'hidden'}
     }
-    return false;
-  };
+  })
+  $scope.$watch('password', function() {
+    if($scope.password != ""){
+      $scope.showError = {'visibility':'hidden'}
+    }
+  })
   $scope.save = function(){
     data = {
       login : $scope.login,
       pwd : $scope.password
     }
     successCallback = function(rep){
-      console.log("success");
       console.log(rep)
+      //$window.location.href = '/view'
     };
 
     errorCallback = function(rep){
-      console.log("error");
-      console.log(rep)
+      $scope.showError = {'visibility':'visible'}
+      $scope.login = ""
+      $scope.password = ""
     };
     $http.post("/login", data).then(successCallback, errorCallback);
   };

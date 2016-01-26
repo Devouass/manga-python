@@ -2,13 +2,15 @@
 import os
 import sys
 from flask import Flask, abort, request, jsonify, g, url_for, send_from_directory, redirect
-from flask_httpauth  import HTTPBasicAuth
+from flask.ext.login import LoginManager, login_required, login_user, logout_user
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from serverUtils import DbConnection, User
 
 app = Flask("manga_server", static_folder='static')
-auth = HTTPBasicAuth()
+app.secret_key = 'mySecretKeyForMyApp'
+login_manager = LoginManager()
+login_manager.init_app(app)
 db = DbConnection()
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
@@ -19,18 +21,30 @@ def _log(message):
     sys.stdout.write('\n')
     sys.stdout.flush()
 
-@app.route('/')
-def root():
-    _log("root asked")
-    return send_from_directory('htmlpages', 'index.html')
+@app.errorhandler(500)
+def internal_error(error):
+    _log("in internal error")
+    _log("error is {}".format(error))
+
+@login_manager.user_loader
+def load_user_id(user_id):
+    _log("try to load user with id {}".format(user_id))
+    user = User.get(user_id)
+    _log("user_loader : user is {}".format(user))
+    return user
+
+@login_manager.unauthorized_handler
+def unauthorized_access():
+    _log("unauthorized access")
+    return redirect(url_for("index"))
+
+@app.route('/images/<path:filename>')
+def serve_static_images(filename):
+    return send_from_directory('static/images', filename)
 
 @app.route('/css/<path:filename>')
-def ser_static_css(filename):
+def serve_static_css(filename):
     return send_from_directory('static/css', filename)
-
-@auth.error_handler
-def auth_error():
-    return "&lt;h1&gt;Access Denied&lt;/h1&gt;"
 
 @app.route('/lib/<path:filename>')
 def serve_static_lib(filename):
@@ -40,36 +54,46 @@ def serve_static_lib(filename):
 def serve_static_script(filename):
     return send_from_directory('static/script', filename)
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET","POST"])
 def check_login():
+    if request.method == 'GET':
+        return redirect(url_for("index"))
     if not request.json:
         abort(400)
-    return jsonify({}), 201
+    user = request.json['login']
+    passwd = request.json['pwd']
+    _log('user is {} and pwd is  {}'.format(user, passwd))
+    u = User.get(user)
+    u.authenticated = True
+    _log("try to log user")
+    login_user(u, remember=False)
+    _log("user logged")
+    return jsonify(user = u.id)
+
+@app.route('/')
+def index():
+    _log("root asked")
+    return send_from_directory('htmlpages', 'index.html')
+
+@app.route('/logout')
+def logout():
+    _log("logout user")
+    u = User.get("jerem")
+    u.authenticated = False
+    logout_user()
+    return redirect(url_for("index"))
 
 @app.route("/view", methods=["GET"])
-@auth.login_required
+@login_required
 def get_routes():
-    return jsonify({}), 201
+    _log("view asked")
+    return send_from_directory('htmlpages', 'viewer.html')
 
-@auth.verify_password
-def verify_password(username_or_token, password):
-    # first try to authenticate by token
-    user = User.verify_auth_token(username_or_token)
-    if not user:
-        _log("no user, username_or_token is {} and psswd is {}".format(username_or_token, password))
-        # try to authenticate with username/password
-        user = db.getUser(username_or_token)
-        _log("user is {}".format(user))
-        if not user or not user.verify_password(password):
-            return False
-    return True
-
-def createUser(name, password):
-    user = User(name)
-    user.hash_password(password)
-    db.saveUser(user.id, user.password_hash)
 
 if __name__ == '__main__':
     db.connect()
-    createUser("jerem", "Admin1&+")
+    #user = User("jerem")
+    #user.hash_password("Admin1&&")
+    #db.saveUser(user.id, user.password_hash)
+    User.user = db.getUser("jerem")
     app.run(host='127.0.0.1', port=8082, debug=True)

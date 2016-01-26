@@ -57,13 +57,11 @@ class DbConnection:
         cursor.close()
 
     def getUser(self, login):
-        self._log("login is {}".format(login))
         user = None
         cursor = self.connexion.cursor()
         query = "SELECT login, psswd FROM users WHERE login = \'{}\'".format(login)
         cursor.execute(query)
         for (login, psswd) in cursor:
-            self._log("login: {}, pssw: {}".format(login, psswd))
             user = User(login, psswd)
         cursor.close()
         self._log("db : user is {}".format(user))
