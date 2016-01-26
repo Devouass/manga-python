@@ -1,0 +1,7 @@
+requests==2.9.1
+flask==0.10.1
+flask-auth==0.85
+passlib==1.6.5
+Flask-HTTPAuth==2.7.0
+Flask-Security==1.7.5
+mysql-connector-python
