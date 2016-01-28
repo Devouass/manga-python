@@ -1,12 +1,29 @@
 <!DOCTYPE html>
+<html>
 <head>
-    <title>Mon programme 2</title>
-    <script type="text/javascript" src="lib/angular.min.js"></script>
-    <script type="text/javascript" src="script/viewer.js"></script>
+  <title>Mon programme 2</title>
+  <script type="text/javascript" src="lib/angular.min.js"></script>
+  <script type="text/javascript" src="lib/jquery-2.2.0.min.js"></script>
+  <script type="text/javascript" src="script/viewer.js"></script>
+  <link rel="stylesheet" href="css/viewer.css">
 </head>
 <body>
-  <div ng-app="viewerApp" ng-controller="viewerCtrl">
-    <button ng-click="logout()">logout</button>
+  <div id="bandeau">
+    <div id="title">
+      <span>Manga reader</span>
+    </div>
+    <ul>
+      <li><a href="/logout">logout</a></li>
+    </ul>
+  </div>
+  <div id="contener" ng-app="viewerApp" ng-controller="viewerCtrl">
+    <div class="repeat">
+      <div class="manga_contener" ng-class="{'hide_class' : manga.hidden}" ng-click="getMyCtrlScope().manga_selected = manga.name" id={{manga.name}} ng-repeat="manga in mangas | limitTo:2">
+          <img class="manga_image" src={{manga.image_url}} alt='image'>
+          <div class="manga_name">{{manga.name}}</div>
+      </div>
+    </div>
+    <button ng-click="show_all_manga()">Show all manga</button>
   </div>
 </body>
 </html>

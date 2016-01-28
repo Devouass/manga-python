@@ -3,8 +3,6 @@ import os
 import sys
 from flask import Flask, abort, request, jsonify, g, url_for, send_from_directory, redirect
 from flask.ext.login import LoginManager, login_required, login_user, logout_user
-from itsdangerous import (TimedJSONWebSignatureSerializer
-                          as Serializer, BadSignature, SignatureExpired)
 from serverUtils import DbConnection, User
 
 app = Flask("manga_server", static_folder='static')
@@ -27,16 +25,16 @@ def internal_error(error):
     _log("error is {}".format(error))
 
 @login_manager.user_loader
-def load_user_id(user_id):
+def load_user_by_id(user_id):
     _log("try to load user with id {}".format(user_id))
-    user = User.get(user_id)
+    user = db.getUser(user_id)
     _log("user_loader : user is {}".format(user))
     return user
 
 @login_manager.unauthorized_handler
 def unauthorized_access():
     _log("unauthorized access")
-    return redirect(url_for("index"))
+    return redirect(url_for("login")), 401
 
 @app.route('/images/<path:filename>')
 def serve_static_images(filename):
@@ -55,33 +53,33 @@ def serve_static_script(filename):
     return send_from_directory('static/script', filename)
 
 @app.route("/login", methods=["GET","POST"])
-def check_login():
+def login():
     if request.method == 'GET':
-        return redirect(url_for("index"))
+        return send_from_directory('htmlpages', 'index.html')
     if not request.json:
         abort(400)
-    user = request.json['login']
+    status = 401
+    login = request.json['login']
     passwd = request.json['pwd']
-    _log('user is {} and pwd is  {}'.format(user, passwd))
-    u = User.get(user)
-    u.authenticated = True
-    _log("try to log user")
-    login_user(u, remember=False)
-    _log("user logged")
-    return jsonify(user = u.id)
+    user = db.getUser(login)
+    if user is not None:
+        if user.verify_password(passwd):
+            user.authenticated = True
+            login_user(user, remember=False)
+            status = 200
+            return jsonify(name = user.id), status
+    return '', status
 
 @app.route('/')
 def index():
     _log("root asked")
-    return send_from_directory('htmlpages', 'index.html')
+    return redirect(url_for("login"))
 
 @app.route('/logout')
 def logout():
     _log("logout user")
-    u = User.get("jerem")
-    u.authenticated = False
     logout_user()
-    return redirect(url_for("index"))
+    return redirect(url_for("login"))
 
 @app.route("/view", methods=["GET"])
 @login_required
@@ -89,11 +87,20 @@ def get_routes():
     _log("view asked")
     return send_from_directory('htmlpages', 'viewer.html')
 
+@app.route("/mangas", methods=["GET"])
+@login_required
+def get_mangas():
+    return jsonify(\
+        {\
+        'mangas' : [\
+        {'name':'fairy tail','start' : 200, 'stop' : 210, 'image_url':'/images/fairy_tail_natsu.png'},\
+        {'name':'one piece', 'start' : 100, 'stop' : 105, 'image_url':'/images/one_piece_lutfy.png'}\
+        ]\
+        }), 200
 
 if __name__ == '__main__':
     db.connect()
-    #user = User("jerem")
-    #user.hash_password("Admin1&&")
-    #db.saveUser(user.id, user.password_hash)
-    User.user = db.getUser("jerem")
+    #user = User("toto")
+    #user.hash_password("toto")
+    #db.saveUser(user)
     app.run(host='127.0.0.1', port=8082, debug=True)

@@ -10,7 +10,7 @@ app.controller('loginCtrl', function($scope, $http, $window) {
     }
   })
   $scope.$watch('password', function() {
-    if($scope.password != ""){
+    if($scope.password != "") {
       $scope.showError = {'visibility':'hidden'}
     }
   })
@@ -21,7 +21,7 @@ app.controller('loginCtrl', function($scope, $http, $window) {
     }
     successCallback = function(rep){
       console.log(rep)
-      //$window.location.href = '/view'
+      $window.location.href = '/view'
     };
 
     errorCallback = function(rep){

@@ -5,6 +5,7 @@ from .user import User
 class DbConnection:
 
     def __init__(self):
+        self.users = {}
         pass
 
     def connect(self):
@@ -26,7 +27,18 @@ class DbConnection:
     def disconnect(self):
         self.connexion.close()
 
-    def saveUser(self, name, password_hash):
+    def _checkUser(self, user):
+        if user is None:
+            return False
+        if not isinstance(user, User):
+            return False
+        return True
+
+    def saveUser(self, user):
+        if not self._checkUser(user):
+            return
+        name = user.id
+        password_hash = user.password_hash
         #first check if exists...
         cursor = self.connexion.cursor()
         query = "SELECT COUNT(1) FROM users WHERE login = \'{}\'".format(name)
@@ -44,7 +56,10 @@ class DbConnection:
         self.connexion.commit()
         cursor.close()
 
-    def delUser(self, name):
+    def delUser(self, user):
+        if not self._checkUser(user):
+            return
+        name = user.name
         cursor = self.connexion.cursor()
         query = "SELECT COUNT(1) FROM users WHERE login = \'{}\'".format(name)
         cursor.execute(query)
@@ -54,28 +69,29 @@ class DbConnection:
             query = "DELETE FROM users WHERE login=\'{}\'".format(name)
             cursor.execute(query)
             self.connexion.commit()
+            #clean cache
+            if user.id in self.users:
+                del self.users[user.id]
         cursor.close()
 
     def getUser(self, login):
         user = None
-        cursor = self.connexion.cursor()
-        query = "SELECT login, psswd FROM users WHERE login = \'{}\'".format(login)
-        cursor.execute(query)
-        for (login, psswd) in cursor:
-            user = User(login, psswd)
-        cursor.close()
-        self._log("db : user is {}".format(user))
+        if login is None:
+            return None
+        if login in self.users:
+            user = self.users[login]
+            self._log("db: load user from cache -> user is {}".format(user))
+        else:
+            cursor = self.connexion.cursor()
+            query = "SELECT login, psswd FROM users WHERE login = \'{}\'".format(login)
+            cursor.execute(query)
+            for (login, psswd) in cursor:
+                user = User(login, psswd)
+                #store it in cache
+                self.users[user.id] = user
+            cursor.close()
+            self._log("db: load user from base -> user is {}".format(user))
         return user
-
-    def checkDB():
-        cursor = self.connexion.cursor()
-        query = ("SELECT id, login FROM users")
-        cursor.execute(query)
-        for (id, login) in cursor:
-            sys.stdout.write("id: {} login: {}".format(id, login))
-            sys.stdout.write('\n')
-            sys.stdout.flush()
-        cursor.close()
 
     def _log(self, message):
         sys.stdout.write(message)

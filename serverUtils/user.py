@@ -1,10 +1,6 @@
 from passlib.hash import sha256_crypt
 
-
 class User:
-
-    SECRET_KEY = "aSecretKey"
-    user = None
 
     def __init__(self, login, password_hash = None):
         self.id = login
@@ -38,7 +34,3 @@ class User:
 
     def __str__(self):
         return "name: {}, authenticated: {}".format(self.id, self.authenticated)
-
-    @staticmethod
-    def get(user_id):
-        return User.user
