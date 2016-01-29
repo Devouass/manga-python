@@ -1,10 +1,10 @@
 angular.module('viewerApp', [])
-.controller('viewerCtrl', function($scope, $http, User) {
+.controller('viewerCtrl', function($scope, $http, $location, User) {
 
   $scope.mangas = [];
   $scope.manga_selected = "None";
   $scope.chapters = [];
-  
+
   $scope.getMyCtrlScope = function() {
     return $scope;
   }

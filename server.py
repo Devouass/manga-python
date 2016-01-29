@@ -80,7 +80,7 @@ def index():
 def logout():
     _log("logout user")
     logout_user()
-    return redirect(url_for("login"))
+    return redirect(url_for("index"))
 
 @app.route("/mangas", methods=["GET"])
 @login_required
