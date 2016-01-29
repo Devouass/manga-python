@@ -1,9 +1,15 @@
-angular.module('viewerApp', [])
-.controller('viewerCtrl', function($scope, $http, $location, User) {
+angular.module('viewerApp', ['loginApp'])
+.controller('viewerCtrl', function($scope, $rootScope, $http, $location, User, loginService) {
 
   $scope.mangas = [];
   $scope.manga_selected = "None";
   $scope.chapters = [];
+  $scope.userName = "";
+
+  $scope.init = function() {
+    $scope.userName =  User.getUser();
+    console.log("user is " + $scope.userName)
+  }
 
   $scope.getMyCtrlScope = function() {
     return $scope;
@@ -36,6 +42,18 @@ angular.module('viewerApp', [])
     $scope.chapters = []
   };
 
+  $scope.logout = function() {
+    loginService.logout();
+    /*successCallback = function(rep){
+      User.setUser("");
+      $location.path('/login')
+    };
+    errorCallback = function(rep){
+      console.log("error" + rep)
+    };
+    $http.get("/logout").then(successCallback, errorCallback);*/
+  };
+
   //init
   (function() {
     successCallback = function(rep){
@@ -54,5 +72,4 @@ angular.module('viewerApp', [])
     };
     $http.get("/mangas", { params: { date: Date.now()}}).then(successCallback, errorCallback);
   })();
-
 });

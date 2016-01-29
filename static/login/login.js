@@ -1,5 +1,33 @@
 angular.module('loginApp', [])
-.controller('loginCtrl', function($scope, $http, $location, $route, User) {
+.service('loginService', function($http, $location, User) {
+  this.login = function(username, password, errorCallback) {
+    data = {
+      login : username,
+      pwd : password
+    }
+    success = function(rep){
+      User.setUser(rep.data['name']);
+      $location.path('/view')
+    };
+    error = function(rep){
+      errorCallback();
+    };
+    $http.post("/login", data).then(success, error);
+  };
+
+  this.logout = function() {
+    successCallback = function(rep){
+    User.setUser("");
+    $location.path('/login')
+    };
+    errorCallback = function(rep){
+      console.log("error" + rep)
+    };
+    $http.get("/logout").then(successCallback, errorCallback);
+  };
+})
+
+.controller('loginCtrl', function($scope, $rootScope, $http, $location, $route, User, loginService) {
   $scope.login = "";
   $scope.password = "";
   $scope.showError = {'visibility':'hidden'}
@@ -15,20 +43,10 @@ angular.module('loginApp', [])
     }
   })
   $scope.save = function(){
-    data = {
-      login : $scope.login,
-      pwd : $scope.password
-    }
-    successCallback = function(rep){
-      User.setUser($scope.login);
-      $location.path('/view')
-    };
-
-    errorCallback = function(rep){
+    loginService.login($scope.login, $scope.password, function() {
       $scope.showError = {'visibility':'visible'}
       $scope.login = ""
       $scope.password = ""
-    };
-    $http.post("/login", data).then(successCallback, errorCallback);
+    })
   };
 });

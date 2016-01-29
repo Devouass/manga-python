@@ -1,15 +1,18 @@
-var myApp = angular.module('MangaApp', ['ngRoute', 'loginApp', 'viewerApp']);
+var myApp = angular.module('MangaApp', ['ngRoute', 'ngCookies', 'loginApp', 'viewerApp']);
 
-myApp.factory('User', function() {
+myApp.factory('User', function($cookies) {
   var user;
-  return {
-    setUser: function(user) {
-      this.user = user;
-    },
-    getUser : function() {
-      return this.user;
-    }
-  }
+  var factory = {};
+  factory.setUser = function(user) {
+    this.user = user;
+    $cookies.put('username', user);
+  };
+  factory.getUser = function() {
+    return this.user;
+  };
+  factory.setUser($cookies.get('username'));
+  console.log('cookie retrieve, name is '+factory.getUser());
+  return factory;
 });
 
 myApp.config(['$routeProvider', function($routeProvider) {

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<div ng-controller="viewerCtrl">
+<div ng-controller="viewerCtrl" ng-init="init()">
   <div id="bandeau">
     <div id="title">
       <span>Manga reader</span>
     </div>
     <ul>
-      <li><a href="/logout">logout</a></li>
+      <li><a ng-click="logout()" href="">logout</a></li>
       <li><a ng-click="home()" href="">Home</a></li>
+      <li><span>{{userName}}</span></li>
     </ul>
   </div>
   <div id="contener">
