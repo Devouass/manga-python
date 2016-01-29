@@ -34,7 +34,7 @@ def load_user_by_id(user_id):
 @login_manager.unauthorized_handler
 def unauthorized_access():
     _log("unauthorized access")
-    return redirect(url_for("login")), 401
+    return redirect(url_for("index")), 401
 
 @app.route('/images/<path:filename>')
 def serve_static_images(filename):
@@ -48,14 +48,15 @@ def serve_static_css(filename):
 def serve_static_lib(filename):
     return send_from_directory('static/lib', filename)
 
-@app.route('/script/<path:filename>')
+@app.route('/www/<path:filename>')
 def serve_static_script(filename):
-    return send_from_directory('static/script', filename)
+    return send_from_directory('static/', filename)
 
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == 'GET':
-        return send_from_directory('htmlpages', 'index.html')
+        #return send_from_directory('htmlpages', 'index.html')
+        return redirect(url_for("login")), 401
     if not request.json:
         abort(400)
     status = 401
@@ -73,19 +74,13 @@ def login():
 @app.route('/')
 def index():
     _log("root asked")
-    return redirect(url_for("login"))
+    return send_from_directory('static', 'index.html')
 
 @app.route('/logout')
 def logout():
     _log("logout user")
     logout_user()
     return redirect(url_for("login"))
-
-@app.route("/view", methods=["GET"])
-@login_required
-def get_routes():
-    _log("view asked")
-    return send_from_directory('htmlpages', 'viewer.html')
 
 @app.route("/mangas", methods=["GET"])
 @login_required
