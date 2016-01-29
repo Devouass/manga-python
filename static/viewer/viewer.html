@@ -1,35 +1,25 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Mon programme 2</title>
-  <script type="text/javascript" src="lib/angular.min.js"></script>
-  <script type="text/javascript" src="script/viewer.js"></script>
-  <link rel="stylesheet" href="css/viewer.css">
-</head>
-<body>
-  <div ng-app="viewerApp" ng-controller="viewerCtrl">
-    <div id="bandeau">
-      <div id="title">
-        <span>Manga reader</span>
-      </div>
-      <ul>
-        <li><a href="/logout">logout</a></li>
-        <li><a ng-click="home()" href="">Home</a></li>
-      </ul>
+<div ng-controller="viewerCtrl">
+  <div id="bandeau">
+    <div id="title">
+      <span>Manga reader</span>
     </div>
-    <div id="contener">
-      <div class="manga_choice">
-        <div class="manga_contener" ng-class="{ 'selected_manga' : manga_selected != 'None'}" ng-show="manga.show" id={{manga.name}} ng-repeat="manga in mangas | limitTo:2">
-            <img ng-click="getMyCtrlScope().manga_selected = manga.name" class="manga_image" src={{manga.image_url}} alt='image'>
-            <div class="manga_name">{{manga.name}}</div>
-        </div>
+    <ul>
+      <li><a href="/logout">logout</a></li>
+      <li><a ng-click="home()" href="">Home</a></li>
+    </ul>
+  </div>
+  <div id="contener">
+    <div class="manga_choice">
+      <div class="manga_contener" ng-class="{ 'selected_manga' : manga_selected != 'None'}" ng-show="manga.show" id={{manga.name}} ng-repeat="manga in mangas | limitTo:2">
+          <img ng-click="getMyCtrlScope().manga_selected = manga.name" class="manga_image" src={{manga.image_url}} alt='image'>
+          <div class="manga_name">{{manga.name}}</div>
       </div>
-      <div class="chapter_choice" ng-show="manga_selected != 'None'">
-        <div class = "" ng-repeat="chapter in chapters">
-          <span>{{chapter}}</span>
-        </div>
+    </div>
+    <div class="chapter_choice" ng-show="manga_selected != 'None'">
+      <div class = "" ng-repeat="chapter in chapters">
+        <span>{{chapter}}</span>
       </div>
     </div>
   </div>
-</body>
-</html>
+</div>

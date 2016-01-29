@@ -1,4 +1,4 @@
-var myApp = angular.module('MangaApp', ['ngRoute', 'loginApp']);
+var myApp = angular.module('MangaApp', ['ngRoute', 'loginApp', 'viewerApp']);
 
 myApp.factory('User', function() {
   var user;
@@ -15,8 +15,12 @@ myApp.factory('User', function() {
 myApp.config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/login',
   {
-    templateUrl: '/login.html',
-    controller: 'loginCtrl'
+    controller: 'loginCtrl',
+    templateUrl: '/static/login/login.html'
+  }).when('/view',
+  {
+    controller: 'viewerCtrl',
+    templateUrl: '/static/viewer/viewer.html'
   }).otherwise(
   {
     redirectTo: '/login'

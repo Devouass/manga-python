@@ -1,8 +1,9 @@
-var app = angular.module('loginApp', []);
-app.controller('loginCtrl', function($scope, $http, $window, User) {
+angular.module('loginApp', [])
+.controller('loginCtrl', function($scope, $http, $location, $route, User) {
   $scope.login = "";
   $scope.password = "";
   $scope.showError = {'visibility':'hidden'}
+
   $scope.$watch('login', function() {
     if($scope.login != ""){
       $scope.showError = {'visibility':'hidden'}
@@ -19,10 +20,8 @@ app.controller('loginCtrl', function($scope, $http, $window, User) {
       pwd : $scope.password
     }
     successCallback = function(rep){
-      console.log(rep);
       User.setUser($scope.login);
-      console.log("user saved is "+User.getUser());
-      //$window.location.href = '/view'
+      $location.path('/view')
     };
 
     errorCallback = function(rep){

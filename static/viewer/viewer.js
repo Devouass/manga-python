@@ -1,13 +1,10 @@
-
-
-app.controller('viewerCtrl', function($scope, $http, $window) {
+angular.module('viewerApp', [])
+.controller('viewerCtrl', function($scope, $http, User) {
 
   $scope.mangas = [];
   $scope.manga_selected = "None";
   $scope.chapters = [];
-
-  console.log("User is "+User.getUser())
-
+  
   $scope.getMyCtrlScope = function() {
     return $scope;
   }
@@ -49,7 +46,7 @@ app.controller('viewerCtrl', function($scope, $http, $window) {
     };
     errorCallback = function(rep){
       if(rep.status == 401) {
-        $window.location.href = '/login';
+        $location.path('/login');
       }
       else {
         console.log(rep)
