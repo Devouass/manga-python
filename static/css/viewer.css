@@ -49,22 +49,24 @@
 #contener {
   position:absolute;
   top:6%;
+  height:94%;
   width:100%;
   left:0;
 }
 
-.repeat {
+.manga_choice {
   position: relative;
   text-align: center;
 }
 
-.manga_contener {
-  width:30%;
-  display: inline-block;
+.selected_manga {
+  float:left;
 }
 
-.hide_class {
-  display:none;
+.manga_contener {
+  height:736px;
+  width:30%;
+  display: inline-block;
 }
 
 .manga_name {
@@ -73,4 +75,10 @@
 
 .manga_image {
   width:100%;
+}
+
+.chapter_choice {
+  left : 30%;
+  width: 70%;
+  height:94%;
 }

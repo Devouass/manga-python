@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html ng-app="MangaApp">
 <head>
   <title>Mon programme</title>
   <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
@@ -7,16 +8,6 @@
   <script type="text/javascript" src="script/index.js"></script>
 </head>
 <body>
-  <div class="logo"></div>
-  <div class="login-block" ng-app="loginApp" ng-controller="loginCtrl">
-      <h1>Login</h1>
-      <input type="text" ng-model="login" id="username" />
-      <input type="password"ng-model="password" id="password" />
-      <div class="error">
-        <div class="login-password-error" ng-style="showError">
-            <div class="message-error">Login or Password invalid</div>
-        </div>
-      </div>
-      <button ng-click="save()">Submit</button>
-  </div>
+  <div ng-view></div>
 </body>
+</html>

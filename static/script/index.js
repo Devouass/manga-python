@@ -1,34 +1,24 @@
-var app = angular.module('loginApp', []);
+var myApp = angular.module('MangaApp', ['ngRoute', 'loginApp']);
 
-app.controller('loginCtrl', function($scope, $http, $window) {
-  $scope.login = "";
-  $scope.password = "";
-  $scope.showError = {'visibility':'hidden'}
-  $scope.$watch('login', function() {
-    if($scope.login != ""){
-      $scope.showError = {'visibility':'hidden'}
+myApp.factory('User', function() {
+  var user;
+  return {
+    setUser: function(user) {
+      this.user = user;
+    },
+    getUser : function() {
+      return this.user;
     }
-  })
-  $scope.$watch('password', function() {
-    if($scope.password != "") {
-      $scope.showError = {'visibility':'hidden'}
-    }
-  })
-  $scope.save = function(){
-    data = {
-      login : $scope.login,
-      pwd : $scope.password
-    }
-    successCallback = function(rep){
-      console.log(rep)
-      $window.location.href = '/view'
-    };
-
-    errorCallback = function(rep){
-      $scope.showError = {'visibility':'visible'}
-      $scope.login = ""
-      $scope.password = ""
-    };
-    $http.post("/login", data).then(successCallback, errorCallback);
-  };
+  }
 });
+
+myApp.config(['$routeProvider', function($routeProvider) {
+  $routeProvider.when('/login',
+  {
+    templateUrl: '/login.html',
+    controller: 'loginCtrl'
+  }).otherwise(
+  {
+    redirectTo: '/login'
+  });
+}]);

@@ -1,9 +1,12 @@
-var app = angular.module('viewerApp', []);
+
 
 app.controller('viewerCtrl', function($scope, $http, $window) {
 
   $scope.mangas = [];
   $scope.manga_selected = "None";
+  $scope.chapters = [];
+
+  console.log("User is "+User.getUser())
 
   $scope.getMyCtrlScope = function() {
     return $scope;
@@ -13,17 +16,27 @@ app.controller('viewerCtrl', function($scope, $http, $window) {
     if($scope.manga_selected != "None") {
       angular.forEach($scope.mangas, function(value, number) {
         if(value["name"] != $scope.manga_selected){
-          value["hidden"] = true;
+          value["show"] = false;
+        } else {
+          //manga selected
+          debut = value["start"];
+          end = value["stop"];
+          for(i = debut; i <= end; i++) {
+            $scope.chapters.push(i);
+          }
         }
       });
     }
-    $scope.manga_selected = "None";
   });
 
-  $scope.show_all_manga = function() {
+  $scope.home = function() {
     angular.forEach($scope.mangas, function(value, number) {
-      value["hidden"] = false;
+      if( value["show"] == false) {
+        value["show"] = true;
+      }
     });
+    $scope.manga_selected = "None";
+    $scope.chapters = []
   };
 
   //init
@@ -31,7 +44,7 @@ app.controller('viewerCtrl', function($scope, $http, $window) {
     successCallback = function(rep){
       $scope.mangas = rep.data["mangas"]
       angular.forEach($scope.mangas, function(value, number) {
-        value["hidden"] = false;
+        value["show"] = true;
       });
     };
     errorCallback = function(rep){
