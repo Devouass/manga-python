@@ -37,6 +37,7 @@ class Requester:
 
 	def _downloadAChapter(self, pathToStore, url, chapter):
 		pageNumber = 0
+		pageType = ".jpg"
 		baseImageUrl = url + "/" + str(chapter) + "/"
 		basePathToStore = pathToStore + "/" + str(chapter) + "/"
 
@@ -45,7 +46,7 @@ class Requester:
 		self._log("downloading chapter {} :".format(chapter), "INFO")
 		while nextImage:
 			pageNumberFormatted = self._formatPageNumber(pageNumber)
-			imageUrl = baseImageUrl + pageNumberFormatted + ".jpg"
+			imageUrl = baseImageUrl + pageNumberFormatted + pageType
 			self._log("try to download {}".format(imageUrl), "DEBUG")
 			r = requests.get(imageUrl, stream=True)
 			if r.status_code == 200:
@@ -54,18 +55,22 @@ class Requester:
 				if not downloadSuccess:
 					downloadSuccess = True
 				pageNumber += 1
-				imagePath =  basePathToStore + pageNumberFormatted + ".jpg"
+				pageType = ".jpg"
+				imagePath =  basePathToStore + pageNumberFormatted + pageType
 				with open(imagePath, 'wb') as imageFile:
 					r.raw.decode_content = True
 					shutil.copyfileobj(r.raw, imageFile)
 			else:
-				if pageNumber == 0:
+				if pageType == ".jpg":
+					pageType = ".png"
+				elif pageNumber == 0:
 					pageNumber += 1
+					pageType = ".jpg"
 				else:
 					if downloadSuccess:
 						self.logger.printSameLine("",True)
 					nextImage = False
-		
+
 		return downloadSuccess
 
 	def _formatPageNumber(self, pageNumber):

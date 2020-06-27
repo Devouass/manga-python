@@ -5,7 +5,7 @@ from utils import Logger, JsonFileWrapper, FileManager
 from downloader import Downloader
 
 class MainClass:
-	
+
 	CONFIG_BASE_DIRECTORY = "config/"
 	CONFIG_FORMAT = ".json"
 
@@ -33,7 +33,7 @@ class MainClass:
 				else:
 					self._logger.error("class Main : file {} does not exists".format(args.name))
 			else:
-				self._logger.error("class Main : can not apply config changes, no manga specified with -n option")			
+				self._logger.error("class Main : can not apply config changes, no manga specified with -n option")
 		return canApply
 
 	def updateConfigFile(self, args):
@@ -54,7 +54,7 @@ class MainClass:
 				self._logger.error("class Main : ioerror {}".format(e))
 
 	def showConfigFile(self, args):
-		if args.name is not None and args.name is not "All":
+		if args.name != None and args.name != "All":
 			if os.path.exists(self._getConfigFilePath(args.name)):
 				self._logger.info(JsonFileWrapper(self._getConfigFilePath(args.name)))
 			else:
