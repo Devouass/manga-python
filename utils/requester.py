@@ -15,7 +15,7 @@ class Requester:
 			self._log("directory {} does not exists, create it".format(Requester.DOWNLOAD_DIR))
 			self.fileManager.createDirectory(Requester.DOWNLOAD_DIR)
 
-	def download(self, name, url, chapter):
+	def download(self, name, url, chapter, suffixes):
 		self._log("download {} from {}, starting chapter {} and store at {}/{}".format(name, url, chapter, Requester.DOWNLOAD_DIR, name), "DEBUG")
 		self._createDirectory(Requester.DOWNLOAD_DIR, name)
 
@@ -25,7 +25,7 @@ class Requester:
 		actualDownloadChapter = int(chapter)
 		downloadSuccess = True
 		while downloadSuccess:
-			res = self._downloadAChapter(downloadDirectory, url, actualDownloadChapter)
+			res = self._downloadAChapter(downloadDirectory, url, actualDownloadChapter, suffixes)
 			if res:
 				self._log("chapter {} downloaded".format(actualDownloadChapter), "INFO")
 				actualDownloadChapter += 1
@@ -35,43 +35,79 @@ class Requester:
 				downloadSuccess = False
 		return actualDownloadChapter
 
-	def _downloadAChapter(self, pathToStore, url, chapter):
+	def _downloadAChapter(self, pathToStore, url, chapter, suffixes):
+
+		self.logger.printSameLine("", True)
+		self._log("downloading chapter {} :".format(chapter), "INFO")
+
+		chapterDownloaded = False
+
+		basePathToStore = pathToStore + "/" + str(chapter) + "/"
+		baseImageUrl = url + "/" + str(chapter) + "/"
+
+		#first try without suffixe:
+		tryUrl = True
 		pageNumber = 0
 		pageType = ".jpg"
-		baseImageUrl = url + "/" + str(chapter) + "/"
-		basePathToStore = pathToStore + "/" + str(chapter) + "/"
-
-		nextImage = True
 		downloadSuccess = False
-		self._log("downloading chapter {} :".format(chapter), "INFO")
-		while nextImage:
-			pageNumberFormatted = self._formatPageNumber(pageNumber)
-			imageUrl = baseImageUrl + pageNumberFormatted + pageType
-			self._log("try to download {}".format(imageUrl), "DEBUG")
-			r = requests.get(imageUrl, stream=True)
-			if r.status_code == 200:
-				self._log("download page image {} from chapter {}".format(pageNumberFormatted, chapter), "DEBUG")
-				self.logger.printSameLine("*")
-				if not downloadSuccess:
-					downloadSuccess = True
-				pageNumber += 1
-				pageType = ".jpg"
-				imagePath =  basePathToStore + pageNumberFormatted + pageType
-				with open(imagePath, 'wb') as imageFile:
-					r.raw.decode_content = True
-					shutil.copyfileobj(r.raw, imageFile)
+		self._log("try to download chapter {} without suffixe".format(chapter), "INFO")
+		while tryUrl:
+			imageUrl = baseImageUrl + self._formatPageNumber(pageNumber) + pageType
+			imagePathStore = basePathToStore + self._formatPageNumber(pageNumber) + pageType
+			downloadSuccess = self._downloadAPage(imageUrl, imagePathStore)
+			if downloadSuccess:
+				tryUrl = False
 			else:
-				if pageType == ".jpg":
-					pageType = ".png"
-				elif pageNumber == 0:
-					pageNumber += 1
-					pageType = ".jpg"
-				else:
-					if downloadSuccess:
-						self.logger.printSameLine("",True)
-					nextImage = False
+				self.logger.printSameLine("x")
+				pageNumber += 1
+				#TODO add .png
+				if pageNumber > 2:
+					self.logger.printSameLine("", True)
+					self._log("nothing to download without suffixe for chapter {}".format(chapter), "ERROR")
+					tryUrl = False
 
-		return downloadSuccess
+		#then try with suffixe
+		if not downloadSuccess:
+			if suffixes:
+				i = 0
+				nbSuffixes = len(suffixes)
+				while i < nbSuffixes and not downloadSuccess:
+					baseImageUrl = url + "/" + str(chapter) + "/" + suffixes[i] + "/"
+					self._log("try to download chapter {} with suffixe {}".format(chapter, suffixes[i]), "INFO")
+					self._log("try with base url = {}".format(baseImageUrl), "DEBUG")
+					i += 1
+					tryUrl = True
+					pageNumber = 0
+					while tryUrl:
+						imageUrl = baseImageUrl + self._formatPageNumber(pageNumber) + pageType
+						imagePathStore = basePathToStore + self._formatPageNumber(pageNumber) + pageType
+						downloadSuccess = self._downloadAPage(imageUrl, imagePathStore)
+						if downloadSuccess:
+							tryUrl = False
+						else:
+							self.logger.printSameLine("x")
+							pageNumber += 1
+							#TODO add .png
+							if pageNumber > 2:
+								self.logger.printSameLine("", True)
+								self._log("nothing to download with suffixe {} for chapter {}".format(suffixes[i-1], chapter), "ERROR")
+								tryUrl = False
+
+		if downloadSuccess:
+			nextImageInChapter = True
+			count = 0
+			while nextImageInChapter:
+				self.logger.printSameLine("*")
+				pageNumber += 1
+				imageUrl = baseImageUrl + self._formatPageNumber(pageNumber) + pageType
+				imagePathStore = basePathToStore + self._formatPageNumber(pageNumber) + pageType
+				nextImageInChapter = self._downloadAPage(imageUrl, imagePathStore)
+				count +=1
+			self.logger.printSameLine("",True)
+			self._log("{} pages donwloaded for chapter {}".format(count, chapter), "INFO")
+			chapterDownloaded = True
+
+		return chapterDownloaded
 
 	def _formatPageNumber(self, pageNumber):
 		pageFormatted = ""
@@ -80,6 +116,18 @@ class Requester:
 		else :
 			pageFormatted = str(pageNumber)
 		return pageFormatted
+
+	def _downloadAPage(self, url, storeUrl):
+		self._log("try to download {}".format(url), "DEBUG")
+		success = False
+		r = requests.get(url, stream=True)
+		if r.status_code == 200:
+			self._log("download {}".format(url), "DEBUG")
+			with open(storeUrl, 'wb') as imageFile:
+				r.raw.decode_content = True
+				shutil.copyfileobj(r.raw, imageFile)
+				success = True
+		return success
 
 	def _createDirectory(self, basePath, name):
 		if basePath is not None and name is not None:

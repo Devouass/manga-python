@@ -6,6 +6,7 @@ class JsonFileWrapper:
 	NAME = "name"
 	URL = "url"
 	CHAPTER = "chapter"
+	SUFFIXE = "suffixe"
 
 	def __init__(self, pathToFile):
 		if not FileManager.getFileManager().exists(pathToFile):

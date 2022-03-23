@@ -17,7 +17,12 @@ class Downloader:
 					chapterAsString = dataAsJson["chapter"]
 					name = dataAsJson["name"]
 					url = dataAsJson["url"]
-					lastDownloadedChapter = self._startDownloading(name, url, chapterAsString)
+					suffixes = None
+					try:
+						suffixes = dataAsJson["suffixe"]
+					except KeyError as e:
+						self._log("no suffixe for {}".format(dataAsJson["name"]), "DEBUG")
+					lastDownloadedChapter = self._startDownloading(name, url, chapterAsString, suffixes)
 					if lastDownloadedChapter is not None and lastDownloadedChapter > int(dataAsJson["chapter"]):
 						downloadSuccess = True
 
@@ -30,9 +35,9 @@ class Downloader:
 		else:
 			self._log("config file path is not set !!", "ERROR")
 
-	def _startDownloading(self, name, url, chapter):
+	def _startDownloading(self, name, url, chapter, suffixes):
 		requester = Requester()
-		lastDownloadedChapter = requester.download(name, url, chapter)
+		lastDownloadedChapter = requester.download(name, url, chapter, suffixes)
 		return int(lastDownloadedChapter)
 
 	def _checkJsonInput(self, json):
